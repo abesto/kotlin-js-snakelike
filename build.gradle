@@ -1,0 +1,54 @@
+apply plugin: 'kotlin'
+group = 'net.abesto'
+version = '0.0.1'
+
+repositories {
+	mavenCentral()
+}
+
+buildscript {
+	ext.kotlinVersion = '0.8.605'
+	ext.kotlinGradlePluginVersion = "0.8.484"
+	ext.kotlinHome = "${System.env.HOME}/Library/Application Support/IdeaIC14/Kotlin"
+	ext.kotlincJs = "$kotlinHome/kotlinc/bin/kotlinc-js"
+	ext.kotlinJsLib = "$kotlinHome/kotlinc/lib/kotlin-jslib.jar"
+	ext.kotlinJs = "$kotlinHome/kotlinc/lib/kotlin.js"
+
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinGradlePluginVersion"
+	}
+}
+
+dependencies {
+	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+	compile files(kotlinJsLib)
+}
+
+sourceSets {
+	main.java.srcDirs += 'src/main/kotlin'
+}
+
+task copyKotlinJs(type: Copy) {
+	from "$kotlinJs"
+	into "$rootDir/web/js/lib"
+}
+
+task build(overwrite: true) {
+	dependsOn copyKotlinJs
+
+	ext.output = "$rootDir/web/js/app/kotlin-js-snakelike.js"
+	ext.sources = sourceSets.main.allSource.files
+
+	inputs.files sources
+	outputs.file output
+
+	doLast {
+		exec {
+			commandLine("bash", kotlincJs, "-verbose", "-version",
+						"-output", output, "-libraryFiles", kotlinJsLib, *sources.toList())
+		}
+	}
+}
