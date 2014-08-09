@@ -7,7 +7,7 @@ repositories {
 }
 
 buildscript {
-	ext.kotlinVersion = '0.8.605'
+	ext.kotlinVersion = '0.8.484'
 	ext.kotlinGradlePluginVersion = "0.8.484"
 	ext.kotlinHome = "${System.env.HOME}/Library/Application Support/IdeaIC14/Kotlin"
 	ext.kotlincJs = "$kotlinHome/kotlinc/bin/kotlinc-js"
