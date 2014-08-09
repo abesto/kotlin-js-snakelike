@@ -1,5 +1,5 @@
 apply plugin: 'kotlin'
-group = 'net.abesto'
+group = 'net.abesto.snakelike.js.kotlin'
 version = '0.0.1'
 
 repositories {
