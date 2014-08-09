@@ -24,11 +24,18 @@ buildscript {
 
 dependencies {
 	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+	compile "junit:junit:4.11"
 	compile files(kotlinJsLib)
 }
 
 sourceSets {
 	main.java.srcDirs += 'src/main/kotlin'
+	test.java.srcDirs += 'src/test/kotlin'
+	mainJs {
+		java {
+			srcDir 'src/main/kotlin-js'
+		}
+	}
 }
 
 task copyKotlinJs(type: Copy) {
@@ -39,16 +46,16 @@ task copyKotlinJs(type: Copy) {
 task build(overwrite: true) {
 	dependsOn copyKotlinJs
 
-	ext.output = "$rootDir/web/js/app/kotlin-js-snakelike.js"
-	ext.sources = sourceSets.main.allSource.files
-
+	ext.sources = sourceSets.mainJs.allSource.files + sourceSets.main.allSource.files
 	inputs.files sources
+
+	ext.output = "$rootDir/web/js/app/kotlin-js-snakelike.js"
 	outputs.file output
 
 	doLast {
 		exec {
 			commandLine("bash", kotlincJs, "-verbose", "-version",
-						"-output", output, "-libraryFiles", kotlinJsLib, *sources.toList())
+					"-output", output, "-libraryFiles", kotlinJsLib, *sources.toList())
 		}
 	}
 }
