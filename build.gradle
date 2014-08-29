@@ -1,14 +1,9 @@
-apply plugin: 'kotlin'
-group = 'net.abesto.snakelike.js.kotlin'
+group = 'net.abesto.snakelike'
 version = '0.0.1'
 
-repositories {
-	mavenCentral()
-}
-
 buildscript {
-	ext.kotlinVersion = '0.8.484'
-	ext.kotlinGradlePluginVersion = "0.8.484"
+	ext.kotlinVersion = '0.1-SNAPSHOT'
+	ext.kotlinGradlePluginVersion = '0.1-SNAPSHOT'
 	ext.kotlinHome = "${System.env.HOME}/Library/Application Support/IdeaIC14/Kotlin"
 	ext.kotlincJs = "$kotlinHome/kotlinc/bin/kotlinc-js"
 	ext.kotlinJsLib = "$kotlinHome/kotlinc/lib/kotlin-jslib.jar"
@@ -16,25 +11,10 @@ buildscript {
 
 	repositories {
 		mavenCentral()
+		maven { url 'http://oss.sonatype.org/content/repositories/snapshots' }
 	}
 	dependencies {
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinGradlePluginVersion"
-	}
-}
-
-dependencies {
-	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-	compile "junit:junit:4.11"
-	compile files(kotlinJsLib)
-}
-
-sourceSets {
-	main.java.srcDirs += 'src/main/kotlin'
-	test.java.srcDirs += 'src/test/kotlin'
-	mainJs {
-		java {
-			srcDir 'src/main/kotlin-js'
-		}
 	}
 }
 
@@ -43,19 +23,64 @@ task copyKotlinJs(type: Copy) {
 	into "$rootDir/web/js/lib"
 }
 
-task build(overwrite: true) {
-	dependsOn copyKotlinJs
+subprojects {
+	apply plugin: 'kotlin'
 
-	ext.sources = sourceSets.mainJs.allSource.files + sourceSets.main.allSource.files
-	inputs.files sources
+	repositories {
+		mavenCentral()
+		maven { url 'http://oss.sonatype.org/content/repositories/snapshots' }
+	}
 
-	ext.output = "$rootDir/web/js/app/kotlin-js-snakelike.js"
-	outputs.file output
+	dependencies {
+		compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+	}
 
-	doLast {
-		exec {
-			commandLine("bash", kotlincJs, "-verbose", "-version",
-					"-output", output, "-libraryFiles", kotlinJsLib, *sources.toList())
+	sourceSets {
+		main.java.srcDirs += 'src/main/kotlin'
+		test.java.srcDirs += 'src/test/kotlin'
+	}
+}
+
+project(':logic') {
+	dependencies {
+		testCompile "junit:junit:4.11"
+	}
+
+	task jarSources(type:Jar){
+		from sourceSets.main.allSource
+		classifier = 'source'
+	}
+}
+
+project(':ui') {
+	ext.jsFile = "app"
+	ext.output = {"$rootDir/web/js/app/${jsFile}.js"}
+	ext.libraryFiles = [kotlinJsLib]
+
+	dependencies {
+		compile files(kotlinJsLib)
+		compile project(':logic')
+	}
+
+	task build(overwrite: true) {
+		dependsOn copyKotlinJs
+		dependsOn ':logic:jarSources'
+
+		ext.sources = sourceSets.main.allSource.files + project(':logic').sourceSets.main.allSource.files
+		inputs.files sources
+
+		outputs.file output()
+
+		doLast {
+			exec {
+				commandLine("bash", kotlincJs, "-verbose", "-version",
+						"-output", output(),
+						"-library-files", libraryFiles.join(','), *sources.toList())
+			}
 		}
+	}
+
+	task test(overwrite: true) {
+		logger.info "JS testing not implemented"
 	}
 }

@@ -1,4 +1,4 @@
-package net.abesto.snakelike.js.kotlin
+package net.abesto.snakelike.logic
 
 import org.junit.Test as test
 import kotlin.test.*
