@@ -12,6 +12,10 @@ enum class Component {
     fun repr() : String = if (this == TwoD) "2D" else toString()
 }
 
+class Color(val red: Short, val green: Short, val blue: Short) {
+    public fun css(): String = "rgb(${red},${green},${blue})"
+}
+
 native val <T> undefined: T = noImpl
 
 native class Crafty {
@@ -29,9 +33,12 @@ public fun Crafty.e(vararg components: Component): Entity {
 
 native class Entity {
     public fun attr(attrs: Attributes): Entity = js.noImpl
-    public fun color(color: String): Entity = js.noImpl
+    native("color") public fun _color(color: String): Entity = js.noImpl
     public fun fourway(speed: Int): Entity = js.noImpl
 }
+
+public fun Entity.color(color: Color): Entity = _color(color.css())
+public fun Entity.color(red: Short, green: Short, blue: Short): Entity = color(Color(red, green, blue))
 
 class Attributes(
     val x: Int = undefined,
