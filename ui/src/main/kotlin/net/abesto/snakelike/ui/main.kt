@@ -3,11 +3,10 @@ package net.abesto.snakelike.ui
 import js.jquery.jq
 import js.dom.html.window
 import js.dom.html.document
-import js.crafty.*
-import js.crafty.Component.*
+
+import js.pixi.*
 
 import net.abesto.snakelike.logic
-import java.util.HashMap
 
 fun tick(game: net.abesto.snakelike.logic.Game) {
     jq("#container").text("coolness" + game.getTick())
@@ -20,9 +19,23 @@ fun main(args: Array<String>) {
         tick(game)
     }
 
-    crafty.init(640, 480, document.getElementById("game"))
-    crafty.e(TwoD, DOM, Color, Fourway)
-            .attr(Attributes(x=0, w=200, y=0, h=150))
-            .color(255, 0, 0)
-            .fourway(4)
+    val stage = PIXI.Stage(0x66ff99)
+    val renderer = PIXI.autoDetectRenderer(400, 300)
+
+    document.body.appendChild(renderer.view)
+
+    val texture = PIXI.Texture.fromImage("img/bunny.png")
+    val bunny = PIXI.Sprite(texture)
+    bunny.anchor.x = 0.5
+    bunny.anchor.y = 0.5
+    bunny.position.x = 200.0
+    bunny.position.y = 150.0
+    stage.addChild(bunny)
+
+    fun animation() {
+        requestAnimFrame{animation()}
+        bunny.rotation += 0.1
+        renderer.render(stage)
+    }
+    requestAnimFrame{animation()}
 }
