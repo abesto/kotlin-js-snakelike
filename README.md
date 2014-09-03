@@ -6,4 +6,4 @@
 
 Because IntelliJ is smart, and if a module has the kotlin-js library as a dependency, then it refuses to see stuff like JUnit. This makes writing tests a pain. This way only the pure JVM module has JUnit as a dependency.
 
-Also note: the JS module (`ui`) reaches out for the source files of `logic` during compilation. This is because I couldn't get the js code generated from `ui` to find the js code generated from `logic`.
+Also note: a single JS module is generated. The built source jar of `logic` is used by `ui` the same way it uses the Kotlin JS library definitions.
