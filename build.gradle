@@ -55,7 +55,7 @@ project(':logic') {
 project(':ui') {
 	ext.jsFile = "app"
 	ext.output = {"$rootDir/web/js/app/${jsFile}.js"}
-	ext.libraryFiles = [kotlinJsLib]
+	ext.libraryFiles = [kotlinJsLib, project(':logic').tasks.jarSources.archivePath]
 
 	dependencies {
 		compile files(kotlinJsLib)
@@ -66,7 +66,7 @@ project(':ui') {
 		dependsOn copyKotlinJs
 		dependsOn ':logic:jarSources'
 
-		ext.sources = sourceSets.main.allSource.files + project(':logic').sourceSets.main.allSource.files
+		ext.sources = sourceSets.main.allSource.files
 		inputs.files sources
 
 		outputs.file output()
